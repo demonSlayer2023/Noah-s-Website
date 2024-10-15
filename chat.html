@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-window" id="chat-window">
+            <ul id="messages"></ul>
+        </div>
+
+        <div class="chat-input">
+            <input id="username" placeholder="Enter your name" autocomplete="off"/>
+            <input id="message_input" placeholder="Type a message..." autocomplete="off"/>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        var socket = io();
+
+        socket.on('message', function(msg) {
+            var li = document.createElement("li");
+            li.innerHTML = `<strong>${msg.username}</strong>: ${msg.message}`;
+            document.getElementById("messages").appendChild(li);
+
+            // Scroll to the bottom of the chat window automatically
+            var chatWindow = document.getElementById("chat-window");
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
+
+        function sendMessage() {
+            var msg = document.getElementById('message_input').value;
+            var username = document.getElementById('username').value;
+            socket.emit('message', {username: username, message: msg});
+            document.getElementById('message_input').value = '';
+        }
+    </script>
+</body>
+</html>
